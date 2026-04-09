@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Choose a Spot — SmartPark{% endblock %}
+{% block meta_description %}Select an available parking slot for your vehicle.{% endblock %}
+
+{% block content %}
+<div class="page-header animate-in">
+    <h1>Choose Your Spot</h1>
+    <p>
+        Vehicle type: <strong>{{ type_display }}</strong> — tap an available spot to select it.
+    </p>
+</div>
+
+<form method="post" id="slot-select-form" class="animate-in animate-in--d1">
+    {% csrf_token %}
+    <input type="hidden" name="slot_id" id="selected-slot-id" value="">
+
+    {% for floor_num, slots in floors.items %}
+    <div class="floor-section">
+        <h3 class="floor-heading">
+            <span class="floor-num">{{ floor_num }}</span>
+            Level {{ floor_num }}
+        </h3>
+        <div class="slot-grid" id="floor-{{ floor_num }}">
+            {% for slot in slots %}
+            <div class="slot-tile {% if not slot.is_available %}slot-tile--occupied{% endif %}"
+                 data-slot-id="{{ slot.id }}"
+                 {% if slot.is_available %}onclick="selectSlot(this, '{{ slot.id }}')" tabindex="0" role="button" aria-label="Slot {{ slot.slot_number }}, {{ slot.get_size_display }}"{% endif %}
+                 id="slot-{{ slot.id }}">
+                <div class="slot-number">{{ slot.slot_number }}</div>
+                <div class="slot-size">{{ slot.get_size_display }}</div>
+                {% if not slot.is_available %}
+                <span class="slot-badge slot-badge--taken">Taken</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="form-card" style="text-align: center; padding: var(--space-2xl);">
+        <p style="margin: 0 auto var(--space-lg); font-size: var(--text-lg);">No spots available for this vehicle type.</p>
+        <a href="{% url 'parking:entry' %}" class="btn btn-outline">Back to Entry</a>
+    </div>
+    {% endfor %}
+
+    {% if floors %}
+    <div class="actions actions--center" style="margin-top: var(--space-xl);">
+        <button type="submit" class="btn btn-secondary" id="btn-confirm-slot" disabled>
+            Confirm Selection
+        </button>
+    </div>
+    {% endif %}
+</form>
+
+<div class="legend animate-in animate-in--d2">
+    <span class="legend-item"><span class="legend-dot legend-dot--available"></span> Available</span>
+    <span class="legend-item"><span class="legend-dot legend-dot--occupied"></span> Taken</span>
+    <span class="legend-item"><span class="legend-dot legend-dot--selected"></span> Selected</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentSelected = null;
+let selectedSlotId = null;
+
+function selectSlot(el, slotId) {
+    if (currentSelected) currentSelected.classList.remove('slot-tile--selected');
+    el.classList.add('slot-tile--selected');
+    currentSelected = el;
+    selectedSlotId = slotId;
+    document.getElementById('selected-slot-id').value = slotId;
+    document.getElementById('btn-confirm-slot').disabled = false;
+}
+
+// Live polling every 3s
+setInterval(async () => {
+    try {
+        const resp = await fetch('/api/slots/');
+        const data = await resp.json();
+
+        data.slots.forEach(slot => {
+            const el = document.getElementById('slot-' + slot.id);
+            if (!el) return;
+
+            if (slot.is_available) {
+                el.classList.remove('slot-tile--occupied');
+                if (!el.onclick) {
+                    el.onclick = () => selectSlot(el, String(slot.id));
+                    el.setAttribute('tabindex', '0');
+                    el.setAttribute('role', 'button');
+                }
+                const badge = el.querySelector('.slot-badge');
+                if (badge) badge.remove();
+            } else {
+                el.classList.add('slot-tile--occupied');
+                el.onclick = null;
+                el.removeAttribute('tabindex');
+                el.removeAttribute('role');
+                if (String(slot.id) === selectedSlotId) {
+                    el.classList.remove('slot-tile--selected');
+                    currentSelected = null;
+                    selectedSlotId = null;
+                    document.getElementById('selected-slot-id').value = '';
+                    document.getElementById('btn-confirm-slot').disabled = true;
+                }
+                if (!el.querySelector('.slot-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'slot-badge slot-badge--taken';
+                    badge.textContent = 'Taken';
+                    el.appendChild(badge);
+                }
+            }
+        });
+    } catch (e) { /* silent */ }
+}, 3000);
+</script>
+{% endblock %}

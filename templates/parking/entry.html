@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Entry — SmartPark{% endblock %}
+{% block meta_description %}Register your vehicle to find an available parking spot.{% endblock %}
+
+{% block content %}
+<div class="page-header animate-in">
+    <h1>Vehicle Entry</h1>
+    <p>Fill in your details to find a parking spot.</p>
+</div>
+
+<div class="form-card animate-in animate-in--d1">
+    <form method="post" id="entry-form">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="form-error">{{ field.errors.0 }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div style="margin-top: var(--space-xl);">
+            <button type="submit" class="btn btn-primary btn--full" id="btn-find-slot">
+                Find a Spot
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

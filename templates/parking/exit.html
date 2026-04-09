@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Exit — SmartPark{% endblock %}
+{% block meta_description %}Check out your vehicle and free up your parking spot.{% endblock %}
+
+{% block content %}
+<div class="page-header animate-in">
+    <h1>Vehicle Exit</h1>
+    <p>Enter your details to check out.</p>
+</div>
+
+<div class="form-card animate-in animate-in--d1">
+    {% if error_message %}
+    <div class="alert alert--error">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
+    <form method="post" id="exit-form">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="form-error">{{ field.errors.0 }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div style="margin-top: var(--space-xl);">
+            <button type="submit" class="btn btn-danger btn--full" id="btn-checkout">
+                Check Out
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

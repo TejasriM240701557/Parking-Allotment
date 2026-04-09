@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ label }} QR Code — SmartPark{% endblock %}
+{% block meta_description %}Printable QR code for the {{ label }}.{% endblock %}
+
+{% block content %}
+<div class="page-header animate-in">
+    <h1>{{ label }} QR Code</h1>
+    <p>Print this QR code and display it at the <strong>{{ label }}</strong>.</p>
+</div>
+
+<div class="ticket animate-in animate-in--d1" style="text-align: center;">
+    <div class="qr-frame">
+        <img src="{{ qr_data_uri }}" alt="{{ label }} QR Code" width="240" height="240">
+    </div>
+
+    <div class="qr-url">{{ target_url }}</div>
+
+    <div style="margin-top: var(--space-xl);">
+        <button class="btn btn-outline" onclick="window.print()">
+            Print QR Code
+        </button>
+    </div>
+</div>
+{% endblock %}

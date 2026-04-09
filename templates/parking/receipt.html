@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Receipt — SmartPark{% endblock %}
+{% block meta_description %}Your parking receipt and session summary.{% endblock %}
+
+{% block content %}
+<div class="page-header animate-in">
+    <h1>You're All Set</h1>
+    <p>Here's your parking receipt. Drive safe!</p>
+</div>
+
+<div class="ticket animate-in animate-in--d1">
+    <div class="ticket-title">Receipt</div>
+    <div class="ticket-row">
+        <span class="ticket-label">Name</span>
+        <span class="ticket-value">{{ session.driver_name }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">License Plate</span>
+        <span class="ticket-value">{{ session.vehicle_plate }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">Vehicle Type</span>
+        <span class="ticket-value">{{ session.get_vehicle_type_display }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">Spot</span>
+        <span class="ticket-value">{{ session.slot.slot_number }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">Entry</span>
+        <span class="ticket-value">{{ session.entry_time|date:"d M Y, H:i" }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">Exit</span>
+        <span class="ticket-value">{{ session.exit_time|date:"d M Y, H:i" }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">Duration</span>
+        <span class="ticket-value">{{ duration_display }}</span>
+    </div>
+
+    <div class="ticket-total">₹{{ amount }}</div>
+    <div class="ticket-total-label">Amount Charged</div>
+
+    <div class="ticket-footer">
+        <a href="{% url 'parking:home' %}" class="btn btn-outline" id="btn-home">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Navigate to {{ session.slot.slot_number }} — SmartPark{% endblock %}
+{% block meta_description %}Directions to your assigned parking spot.{% endblock %}
+
+{% block content %}
+<div class="page-header animate-in">
+    <h1>Your Spot</h1>
+    <p>Follow the steps below to reach your parking spot.</p>
+</div>
+
+<div class="wayfinding animate-in animate-in--d1">
+    <div class="slot-beacon">{{ session.slot.slot_number }}</div>
+    <div class="slot-meta">
+        Level {{ session.slot.floor }} · {{ session.slot.get_size_display }}
+    </div>
+
+    <ol class="step-list">
+        <li>Drive through the entry gate. Keep your license plate visible.</li>
+        {% if session.slot.floor > 1 %}
+        <li>Go up to <strong>Level {{ session.slot.floor }}</strong>.</li>
+        <li>Follow signs to Section <strong>{{ session.slot.slot_number|truncatechars:1 }}</strong>.</li>
+        <li>Park in spot <strong>{{ session.slot.slot_number }}</strong>.</li>
+        {% else %}
+        <li>Stay on the ground level. Follow signs to Section <strong>{{ session.slot.slot_number|truncatechars:1 }}</strong>.</li>
+        <li>Park in spot <strong>{{ session.slot.slot_number }}</strong>.</li>
+        {% endif %}
+    </ol>
+</div>
+
+<div class="ticket animate-in animate-in--d2">
+    <div class="ticket-title">Parking Ticket</div>
+    <div class="ticket-row">
+        <span class="ticket-label">Name</span>
+        <span class="ticket-value">{{ session.driver_name }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">License Plate</span>
+        <span class="ticket-value">{{ session.vehicle_plate }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">Vehicle Type</span>
+        <span class="ticket-value">{{ session.get_vehicle_type_display }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">Spot</span>
+        <span class="ticket-value">{{ session.slot.slot_number }}</span>
+    </div>
+    <div class="ticket-row">
+        <span class="ticket-label">Entry Time</span>
+        <span class="ticket-value">{{ session.entry_time|date:"d M Y, H:i" }}</span>
+    </div>
+
+    <div class="code-block">
+        <div class="code-block-label">Your license plate for exit</div>
+        <div class="code-block-value">{{ session.vehicle_plate }}</div>
+    </div>
+</div>
+{% endblock %}
