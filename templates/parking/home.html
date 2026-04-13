@@ -1,67 +1,371 @@
-{% extends "base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
 
-{% block title %}SmartPark — Dashboard{% endblock %}
-{% block meta_description %}Live parking availability and quick access to entry and exit flows.{% endblock %}
-
-{% block extra_head %}
-<style>
-    body {
-        background-image: url('{% static "img/gradient-1775707484169.png" %}');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="dashboard-header animate-in">
-    <h1>Parking Dashboard</h1>
-    <p>Live availability at a glance.</p>
-</div>
-
-<div class="stat-row animate-in animate-in--d1">
-    <div class="stat-tile stat-tile--total">
-        <div class="stat-value" id="stat-total">{{ total_slots }}</div>
-        <div class="stat-label">Total Capacity</div>
-    </div>
-    <div class="stat-tile stat-tile--available">
-        <div class="stat-value" id="stat-free">{{ free_slots }}</div>
-        <div class="stat-label">Available</div>
-    </div>
-    <div class="stat-tile stat-tile--occupied">
-        <div class="stat-value" id="stat-active">{{ active_sessions }}</div>
-        <div class="stat-label">Occupied</div>
-    </div>
-</div>
-
-<div class="actions animate-in animate-in--d2">
-    <a href="{% url 'parking:entry' %}" class="btn btn-primary" id="btn-entry">Park a Vehicle</a>
-    <a href="{% url 'parking:exit_scan' %}" class="btn btn-danger" id="btn-exit">Exit &amp; Checkout</a>
-</div>
-
-<div class="admin-links animate-in animate-in--d3">
-    <div class="admin-links-label">Gate QR Codes</div>
-    <div class="actions">
-        <a href="{% url 'parking:qr_entry' %}" class="btn btn-ghost" id="btn-qr-entry">Entry Gate QR</a>
-        <a href="{% url 'parking:qr_exit' %}" class="btn btn-ghost" id="btn-qr-exit">Exit Gate QR</a>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-setInterval(async () => {
-    try {
-        const r = await fetch('/api/slots/');
-        const d = await r.json();
-        if (d.stats) {
-            document.getElementById('stat-total').textContent = d.stats.total_slots;
-            document.getElementById('stat-free').textContent = d.stats.free_slots;
-            document.getElementById('stat-active').textContent = d.stats.active_sessions;
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Urban Concierge | Smart Parking</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#002108",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-fixed-variant": "#343d96",
+                        "tertiary-container": "#003912",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed": "#e0e0ff",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#002108",
+                        "error": "#ba1a1a",
+                        "on-background": "#191c1e",
+                        "on-primary-container": "#8690ee",
+                        "surface-container": "#eceef0",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c6c5d4",
+                        "on-surface": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#11278e",
+                        "background": "#f7f9fb",
+                        "surface": "#f7f9fb",
+                        "outline": "#767683",
+                        "inverse-primary": "#bdc2ff",
+                        "on-secondary-fixed-variant": "#293ca0",
+                        "secondary": "#4355b9",
+                        "secondary-container": "#8596ff",
+                        "inverse-surface": "#2d3133",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-tint": "#4c56af",
+                        "surface-container-high": "#e6e8ea",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "primary-container": "#1a237e",
+                        "secondary-fixed-dim": "#bac3ff",
+                        "secondary-fixed": "#dee0ff",
+                        "on-secondary-fixed": "#00105c",
+                        "on-primary": "#ffffff",
+                        "primary": "#000666",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "surface-variant": "#e0e3e5",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#000767",
+                        "on-surface-variant": "#454652",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-container": "#00b048",
+                        "tertiary-fixed": "#69ff87"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    "boxShadow": {
+                        "app-card": "0 2px 12px -2px rgba(25, 28, 30, 0.08), 0 4px 6px -2px rgba(25, 28, 30, 0.04)"
+                    }
+                }
+            }
         }
-    } catch (e) { /* silent */ }
-}, 3000);
-</script>
-{% endblock %}
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .active-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        body {
+            min-height: 100dvh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-drawer {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .drawer-open .app-drawer {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+
+<body class="bg-background font-body text-on-surface">
+    <!-- Navigation Drawer Overlay -->
+    <div class="fixed inset-0 bg-black/40 z-[60] hidden transition-opacity duration-300" id="drawer-overlay"></div>
+    <!-- Sidebar Navigation Drawer -->
+    <aside
+        class="fixed top-0 left-0 h-full w-[280px] bg-surface-container-lowest z-[70] app-drawer -translate-x-full shadow-2xl flex flex-col"
+        id="side-drawer">
+        <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-2xl"
+                    data-icon="local_parking">local_parking</span>
+                <h1 class="font-headline font-extrabold text-xl text-primary">Urban Flow</h1>
+            </div>
+            <button class="p-2 hover:bg-surface-container rounded-full" onclick="toggleDrawer()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a class="flex items-center gap-4 p-3 bg-primary-fixed text-on-primary-fixed rounded-2xl" href="#">
+                <span class="material-symbols-outlined active-icon">home</span>
+                <span class="font-semibold">Dashboard</span>
+            </a>
+            <a class="flex items-center gap-4 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-2xl transition-colors"
+                href="{% url 'parking:entry' %}">
+                <span class="material-symbols-outlined">confirmation_number</span>
+                <span class="font-medium">My Bookings</span>
+            </a>
+            <a class="flex items-center gap-4 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-2xl transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">payments</span>
+                <span class="font-medium">Payments</span>
+            </a>
+            <a class="flex items-center gap-4 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-2xl transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">location_on</span>
+                <span class="font-medium">Locations</span>
+            </a>
+            <div class="h-px bg-outline-variant my-4"></div>
+            <a class="flex items-center gap-4 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-2xl transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">settings</span>
+                <span class="font-medium">Settings</span>
+            </a>
+            <a class="flex items-center gap-4 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-2xl transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">contact_support</span>
+                <span class="font-medium">Support</span>
+            </a>
+        </nav>
+    </aside>
+    <!-- Top Bar Navigation -->
+    <header class="w-full sticky top-0 bg-surface-bright/80 backdrop-blur-xl border-b border-outline-variant z-50">
+        <div class="flex justify-between items-center px-4 py-3 max-w-7xl mx-auto">
+            <div class="flex items-center gap-2">
+                <button class="p-2 hover:bg-surface-container-low rounded-xl active:scale-95 transition-all"
+                    onclick="toggleDrawer()">
+                    <span class="material-symbols-outlined text-on-surface">menu</span>
+                </button>
+                <div class="flex items-center gap-2 ml-1">
+                    <span class="material-symbols-outlined text-primary text-2xl font-bold"
+                        data-icon="local_parking">local_parking</span>
+                    <h1 class="font-headline tracking-tight font-extrabold text-lg text-primary">Flow</h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-xl transition-all">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-7xl mx-auto px-4 pt-6 pb-24 space-y-6">
+        <!-- Hero / Status Section -->
+        <section class="relative rounded-[2.5rem] overflow-hidden min-h-[220px] flex items-center shadow-app-card">
+            <div class="absolute inset-0 z-0">
+                <img alt="Urban parking structure" class="w-full h-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-8LOZmJ3p9kzzpsjsQGh340QxIBdsk12JEYElFR5bo0nePfVsldi2zkIMx4yR0G0y9BuhvrWFTmwl-vPY0euVJ2ndxkHn0kgUU88Q822XyoqEmFvFaz0W0U1KihmA-voj40tEzwslpnKBF3GZfoemBqqDQzXQtodppQXXlD9-pkd7bIpMil-QXF7oteodJFJKLVhh9xQV4lh0o-sUCPyl_azjTOy21MpdeDCJCA1aCrmjy-DBTDOTj0r1frd-WYCxrLFNHIT24aQz" />
+                <div class="absolute inset-0 bg-gradient-to-tr from-primary via-primary/80 to-transparent"></div>
+            </div>
+            <div class="relative z-10 px-8 py-8 w-full">
+                <span
+                    class="bg-primary-container/20 backdrop-blur-md text-primary-fixed text-[10px] font-extrabold tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-3 inline-block">Central
+                    Station Plaza</span>
+                <h2 class="font-headline text-3xl font-extrabold text-on-primary leading-tight mb-2">Your
+                    Parking,<br />Simplified.</h2>
+                <p class="text-primary-fixed/80 text-sm font-medium max-w-[200px]">Real-time availability in the heart
+                    of the city.</p>
+            </div>
+        </section>
+        <!-- Prominent Action CTAs -->
+        <section class="grid grid-cols-2 gap-4">
+            <a href="{% url 'parking:entry' %}"
+                class="bg-primary hover:bg-primary/95 text-on-primary p-6 rounded-[2.5rem] flex flex-col items-center justify-center gap-3 shadow-lg active:scale-95 transition-all group">
+                <div
+                    class="w-14 h-14 rounded-full bg-on-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-3xl" data-icon="login">login</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-lg font-bold">Entry Gate</span>
+                    <span class="text-[10px] uppercase tracking-widest opacity-60">Scan to enter</span>
+                </div>
+            </a>
+            <a href="{% url 'parking:exit_scan' %}"
+                class="bg-surface-container-highest hover:bg-surface-container-high text-primary p-6 rounded-[2.5rem] flex flex-col items-center justify-center gap-3 shadow-app-card active:scale-95 transition-all group">
+                <div
+                    class="w-14 h-14 rounded-full bg-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform border border-primary/10">
+                    <span class="material-symbols-outlined text-3xl" data-icon="logout">logout</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-lg font-bold">Exit Gate</span>
+                    <span class="text-[10px] uppercase tracking-widest opacity-60">Scan to pay</span>
+                </div>
+            </a>
+        </section>
+        <!-- Stats Dashboard - Compact Web App Style -->
+        <section class="grid grid-cols-3 gap-3">
+            <div
+                class="bg-surface-container-low p-4 rounded-3xl border border-outline-variant/30 shadow-app-card text-center">
+                <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1">Total</p>
+                <h3 class="text-2xl font-headline font-extrabold text-primary" id="stat-total">{{
+                    total_slots|default:"500" }}</h3>
+            </div>
+            <div
+                class="bg-surface-container-low p-4 rounded-3xl border border-outline-variant/30 shadow-app-card text-center">
+                <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1">Occupied</p>
+                <h3 class="text-2xl font-headline font-extrabold text-primary" id="stat-active">{{
+                    active_sessions|default:"342" }}</h3>
+            </div>
+            <div
+                class="bg-tertiary-fixed p-4 rounded-3xl shadow-app-card text-center flex flex-col justify-center items-center">
+                <p class="text-[10px] font-bold text-on-tertiary-fixed uppercase tracking-wider mb-1">Available</p>
+                <h3 class="text-2xl font-headline font-extrabold text-on-tertiary-fixed" id="stat-free">{{
+                    free_slots|default:"158" }}</h3>
+            </div>
+        </section>
+        <!-- How It Works - Cards -->
+        <section class="space-y-4">
+            <div class="flex justify-between items-center px-1">
+                <h5 class="text-lg font-headline font-bold text-on-surface">How it works</h5>
+                <a class="text-primary text-xs font-bold flex items-center gap-1" href="#">Guide <span
+                        class="material-symbols-outlined text-sm">arrow_forward</span></a>
+            </div>
+            <div class="grid grid-cols-1 gap-3">
+                <div
+                    class="bg-surface-container-lowest p-4 rounded-3xl shadow-app-card border border-outline-variant/20 flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 rounded-2xl bg-primary-container/10 flex-shrink-0 flex items-center justify-center text-primary font-extrabold">
+                        1</div>
+                    <div>
+                        <p class="text-sm font-bold text-on-surface">Scan QR at Entry</p>
+                        <p class="text-xs text-on-surface-variant">Gate opens automatically after scan</p>
+                    </div>
+                </div>
+                <div
+                    class="bg-surface-container-lowest p-4 rounded-3xl shadow-app-card border border-outline-variant/20 flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 rounded-2xl bg-primary-container/10 flex-shrink-0 flex items-center justify-center text-primary font-extrabold">
+                        2</div>
+                    <div>
+                        <p class="text-sm font-bold text-on-surface">Park &amp; Enjoy</p>
+                        <p class="text-xs text-on-surface-variant">Secure, monitored spots available</p>
+                    </div>
+                </div>
+                <div
+                    class="bg-surface-container-lowest p-4 rounded-3xl shadow-app-card border border-outline-variant/20 flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 rounded-2xl bg-primary-container/10 flex-shrink-0 flex items-center justify-center text-primary font-extrabold">
+                        3</div>
+                    <div>
+                        <p class="text-sm font-bold text-on-surface">Pay &amp; Exit</p>
+                        <p class="text-xs text-on-surface-variant">Seamless digital payments at the gate</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Rates - Compact Web Info -->
+        <section
+            class="bg-primary-container p-6 rounded-[2.5rem] shadow-app-card text-on-primary-container relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h5 class="text-lg font-headline font-bold">Standard Rates</h5>
+                        <p class="text-xs opacity-70">Zone A - Central Plaza</p>
+                    </div>
+                    <span class="material-symbols-outlined opacity-40">info</span>
+                </div>
+                <div class="flex items-baseline gap-2 mb-4">
+                    <span class="text-4xl font-headline font-extrabold">$4.50</span>
+                    <span class="font-medium opacity-70">/ hour</span>
+                </div>
+                <div class="flex justify-between items-center text-xs py-3 border-t border-on-primary-container/10">
+                    <span class="font-medium opacity-70">Daily Maximum Cap</span>
+                    <span class="font-extrabold">$32.00</span>
+                </div>
+            </div>
+            <!-- Decorative abstract shape -->
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-on-primary-container/5 rounded-full blur-3xl"></div>
+        </section>
+    </main>
+    <!-- BottomNavBar -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 px-4 pb-6 mt-4 pointer-events-none">
+        <div
+            class="bg-surface-container-lowest/90 backdrop-blur-2xl border border-outline-variant/30 flex justify-around items-center py-3 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] pointer-events-auto">
+            <a class="flex flex-col items-center justify-center text-primary" href="{% url 'parking:home' %}">
+                <span class="material-symbols-outlined text-2xl active-icon">home</span>
+                <span class="text-[10px] font-bold mt-1">Home</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60"
+                href="{% url 'parking:bookings' %}">
+                <span class="material-symbols-outlined text-2xl">confirmation_number</span>
+                <span class="text-[10px] font-bold mt-1">Booking</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60" href="#">
+                <span class="material-symbols-outlined text-2xl">history</span>
+                <span class="text-[10px] font-bold mt-1">History</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60" href="#">
+                <span class="material-symbols-outlined text-2xl">person</span>
+                <span class="text-[10px] font-bold mt-1">Profile</span>
+            </a>
+        </div>
+    </nav>
+    <script>
+        function toggleDrawer() {
+            const body = document.body;
+            const overlay = document.getElementById('drawer-overlay');
+            const drawer = document.getElementById('side-drawer');
+
+            const isOpen = body.classList.contains('drawer-open');
+
+            if (isOpen) {
+                body.classList.remove('drawer-open');
+                overlay.classList.add('hidden');
+                overlay.classList.remove('block');
+            } else {
+                body.classList.add('drawer-open');
+                overlay.classList.remove('hidden');
+                overlay.classList.add('block');
+            }
+        }
+
+        document.getElementById('drawer-overlay').onclick = toggleDrawer;
+
+        setInterval(async () => {
+            try {
+                const r = await fetch('/api/slots/');
+                const d = await r.json();
+                if (d.stats) {
+                    document.getElementById('stat-total').textContent = d.stats.total_slots;
+                    document.getElementById('stat-free').textContent = d.stats.free_slots;
+                    document.getElementById('stat-active').textContent = d.stats.active_sessions;
+                }
+            } catch (e) { /* silent */ }
+        }, 3000);
+    </script>
+</body>
+
+</html>

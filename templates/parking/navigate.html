@@ -1,59 +1,258 @@
-{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
 
-{% block title %}Navigate to {{ session.slot.slot_number }} — SmartPark{% endblock %}
-{% block meta_description %}Directions to your assigned parking spot.{% endblock %}
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Your Parking Ticket - Slot {{ session.slot.slot_number }}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
 
-{% block content %}
-<div class="page-header animate-in">
-    <h1>Your Spot</h1>
-    <p>Follow the steps below to reach your parking spot.</p>
-</div>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#191c1e",
+                        "inverse-primary": "#bdc2ff",
+                        "inverse-surface": "#2d3133",
+                        "on-tertiary-container": "#00b048",
+                        "secondary-fixed": "#dee0ff",
+                        "surface-dim": "#d8dadc",
+                        "primary": "#000666",
+                        "on-surface": "#191c1e",
+                        "outline-variant": "#c6c5d4",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-container": "#11278e",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e0e0ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#002108",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "primary-container": "#1a237e",
+                        "on-tertiary-fixed": "#002108",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary-fixed-dim": "#bac3ff",
+                        "secondary-container": "#8596ff",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#454652",
+                        "on-secondary-fixed": "#00105c",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "outline": "#767683",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#003912",
+                        "surface-tint": "#4c56af",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary": "#4355b9",
+                        "on-secondary-fixed-variant": "#293ca0",
+                        "on-primary-fixed-variant": "#343d96",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#8690ee",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed": "#000767",
+                        "tertiary-fixed": "#69ff87",
+                        "background": "#f7f9fb",
+                        "surface": "#f7f9fb",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-low": "#f2f4f6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
 
-<div class="wayfinding animate-in animate-in--d1">
-    <div class="slot-beacon">{{ session.slot.slot_number }}</div>
-    <div class="slot-meta">
-        Level {{ session.slot.floor }} · {{ session.slot.get_size_display }}
-    </div>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
 
-    <ol class="step-list">
-        <li>Drive through the entry gate. Keep your license plate visible.</li>
-        {% if session.slot.floor > 1 %}
-        <li>Go up to <strong>Level {{ session.slot.floor }}</strong>.</li>
-        <li>Follow signs to Section <strong>{{ session.slot.slot_number|truncatechars:1 }}</strong>.</li>
-        <li>Park in spot <strong>{{ session.slot.slot_number }}</strong>.</li>
-        {% else %}
-        <li>Stay on the ground level. Follow signs to Section <strong>{{ session.slot.slot_number|truncatechars:1 }}</strong>.</li>
-        <li>Park in spot <strong>{{ session.slot.slot_number }}</strong>.</li>
-        {% endif %}
-    </ol>
-</div>
+<body class="bg-surface font-body text-on-surface antialiased">
+    <!-- TopAppBar -->
+    <header
+        class="bg-slate-50 dark:bg-slate-900 flex justify-between items-center w-full px-6 h-16 max-w-md md:max-w-5xl mx-auto top-0 sticky z-40">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'parking:home' %}"
+                class="text-indigo-900 dark:text-indigo-100 active:scale-95 transition-transform flex">
+                <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+            </a>
+            <h1 class="text-indigo-950 dark:text-white font-extrabold font-headline tracking-tight text-lg">Your Parking
+                Ticket</h1>
+        </div>
+        <button class="text-indigo-900 dark:text-indigo-100 active:scale-95 transition-transform">
+            <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+        </button>
+    </header>
 
-<div class="ticket animate-in animate-in--d2">
-    <div class="ticket-title">Parking Ticket</div>
-    <div class="ticket-row">
-        <span class="ticket-label">Name</span>
-        <span class="ticket-value">{{ session.driver_name }}</span>
-    </div>
-    <div class="ticket-row">
-        <span class="ticket-label">License Plate</span>
-        <span class="ticket-value">{{ session.vehicle_plate }}</span>
-    </div>
-    <div class="ticket-row">
-        <span class="ticket-label">Vehicle Type</span>
-        <span class="ticket-value">{{ session.get_vehicle_type_display }}</span>
-    </div>
-    <div class="ticket-row">
-        <span class="ticket-label">Spot</span>
-        <span class="ticket-value">{{ session.slot.slot_number }}</span>
-    </div>
-    <div class="ticket-row">
-        <span class="ticket-label">Entry Time</span>
-        <span class="ticket-value">{{ session.entry_time|date:"d M Y, H:i" }}</span>
-    </div>
+    <main
+        class="max-w-md md:max-w-5xl mx-auto px-6 pt-8 pb-32 md:grid md:grid-cols-2 md:gap-12 md:items-start text-left">
+        <!-- Left Column (Desktop) -->
+        <div class="space-y-8">
+            <!-- Slot Information Card: Asymmetric Layout -->
+            <section class="relative">
+                <div class="absolute -top-4 -left-2 w-24 h-24 bg-primary-container/10 rounded-full blur-2xl"></div>
+                <div
+                    class="bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0_12px_40px_rgba(25,28,30,0.06)] flex justify-between items-end relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-on-surface-variant font-headline font-semibold text-sm mb-1">Assigned Slot</p>
+                        <h2 class="text-primary font-headline font-extrabold text-5xl tracking-tighter">
+                            Slot {{ session.slot.slot_number }}</h2>
+                        <div class="mt-4 flex items-center gap-2 text-secondary font-semibold">
+                            <span class="material-symbols-outlined text-sm" data-icon="layers">layers</span>
+                            <span class="font-headline">Floor {{ session.slot.floor }}</span>
+                        </div>
+                    </div>
+                    <div class="relative z-10 text-right">
+                        <div
+                            class="bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full text-xs font-bold font-headline mb-8 inline-block uppercase tracking-wider">
+                            Active</div>
+                        <div class="flex flex-col items-end">
+                            <span
+                                class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest">Zone</span>
+                            <span class="text-primary font-headline font-bold text-xl">{{
+                                session.get_vehicle_type_display }}</span>
+                        </div>
+                    </div>
+                    <!-- Decorative element -->
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-primary/5 rounded-full"></div>
+                </div>
+            </section>
 
-    <div class="code-block">
-        <div class="code-block-label">Your license plate for exit</div>
-        <div class="code-block-value">{{ session.vehicle_plate }}</div>
-    </div>
-</div>
-{% endblock %}
+            <!-- Details Grid: Bento Style -->
+            <section class="grid grid-cols-2 gap-4">
+                <div class="bg-surface-container-low p-5 rounded-3xl">
+                    <span class="material-symbols-outlined text-secondary mb-3" data-icon="schedule">schedule</span>
+                    <p class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest mb-1">Entry Time
+                    </p>
+                    <p class="text-primary font-bold font-headline">{{ session.entry_time|date:"h:i A" }}</p>
+                </div>
+                <div class="bg-surface-container-low p-5 rounded-3xl">
+                    <span class="material-symbols-outlined text-secondary mb-3"
+                        data-icon="directions_car">directions_car</span>
+                    <p class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest mb-1">Plate Number
+                    </p>
+                    <p class="text-primary font-bold font-headline text-lg">{{ session.vehicle_plate }}</p>
+                </div>
+                <div class="bg-primary-container p-5 rounded-3xl col-span-2 flex justify-between items-center">
+                    <div>
+                        <p class="text-on-primary-container text-[10px] font-bold uppercase tracking-widest mb-1">
+                            Estimated Rate</p>
+                        <p class="text-white font-bold font-headline text-2xl">$4.50<span
+                                class="text-sm font-medium opacity-70"> / hr</span></p>
+                    </div>
+                    <div class="bg-white/10 p-3 rounded-2xl">
+                        <span class="material-symbols-outlined text-white" data-icon="payments">payments</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column (Desktop) -->
+        <div class="space-y-8 mt-8 md:mt-0">
+            <!-- Live Ticket Section (QR Code) -->
+            <section class="text-center space-y-6">
+                <div
+                    class="glass-card rounded-[2.5rem] p-10 shadow-[0_12px_40px_rgba(25,28,30,0.06)] mx-auto w-fit border border-outline-variant/15 bg-white">
+                    <div class="bg-white p-4 rounded-3xl inline-block shadow-inner">
+                        <img alt="QR Code for gate entry" class="w-48 h-48"
+                            data-alt="a minimalist and high-contrast digital QR code on a clean white background with subtle tech-themed border accents"
+                            src="{{ qr_data_uri }}" />
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-on-surface font-semibold text-lg font-headline">Scan at Entry Gate</p>
+                    <p class="text-on-surface-variant text-sm px-12 md:px-4">Position your phone 10 inches from the
+                        scanner for rapid
+                        entry.</p>
+                </div>
+            </section>
+
+            <!-- Navigation Map Section: Tonal Layering -->
+            <section class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-headline font-bold text-lg text-primary">Floor Navigation</h3>
+                    <span class="text-secondary text-sm font-semibold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-base" data-icon="directions">directions</span>
+                        Follow Blue Line
+                    </span>
+                </div>
+                <div class="h-64 rounded-3xl bg-surface-container-low overflow-hidden relative shadow-inner">
+                    <img class="w-full h-full object-cover opacity-80 mix-blend-multiply"
+                        data-alt="a professional architectural floor plan of a modern parking garage featuring a glowing blue path from entrance to a highlighted parking bay"
+                        data-location="Premium Parking Garage Level 1"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6xfm2k3oDgX9fWWxIjvvjUETXYQrjDqJH_dpId8XQLmrXUyta6LYG9Tl-svUMFfJwFq_4WtD6JnJ5H6F35fQAbvThhaFnlgPkyujCwgHNSM4J4gP_Cu3SfJWZ2H9zAl5xfg90xZN-DvIcX1iQe5L-QRymN0BB1jL0CeHOjACFnnDtmvujjSPESfDmLe6YXaiaDa6rOTpLwrAXqgq9lMxS1hfs20D64BjuqtnsLvqJN_wOwp85odf1TaqhR8SAk0ChGh1li_Hp3A-L" />
+                    <!-- Instruction Overlay -->
+                    <div
+                        class="absolute bottom-4 left-4 right-4 bg-primary/90 text-white p-4 rounded-2xl backdrop-blur-md flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined" data-icon="turn_right">turn_right</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold tracking-widest text-white/70">Next Step</p>
+                            <p class="font-semibold text-sm">Turn right after Row B</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- BottomNavBar -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 px-4 pb-6 mt-4 pointer-events-none">
+        <div
+            class="bg-surface-container-lowest/90 backdrop-blur-2xl border border-outline-variant/30 flex justify-around items-center py-3 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] pointer-events-auto">
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60"
+                href="{% url 'parking:home' %}">
+                <span class="material-symbols-outlined text-2xl">home</span>
+                <span class="text-[10px] font-bold mt-1">Home</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-primary" href="{% url 'parking:bookings' %}">
+                <span class="material-symbols-outlined text-2xl active-icon">confirmation_number</span>
+                <span class="text-[10px] font-bold mt-1">Booking</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60" href="#">
+                <span class="material-symbols-outlined text-2xl">history</span>
+                <span class="text-[10px] font-bold mt-1">History</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60" href="#">
+                <span class="material-symbols-outlined text-2xl">person</span>
+                <span class="text-[10px] font-bold mt-1">Profile</span>
+            </a>
+        </div>
+    </nav>
+</body>
+
+</html>
