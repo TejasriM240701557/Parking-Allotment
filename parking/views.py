@@ -13,6 +13,17 @@ from .models import ParkingSlot, ParkingSession, VEHICLE_SIZE_MAP
 from .forms import EntryForm, ExitForm
 
 
+def bookings(request):
+    """List all user tickets (active and finished)."""
+    # For a real app, this would filter by request.user
+    active_sessions = ParkingSession.objects.filter(is_active=True).order_by('-entry_time')
+    finished_sessions = ParkingSession.objects.filter(is_active=False).order_by('-exit_time')
+    return render(request, 'parking/bookings.html', {
+        'active_sessions': active_sessions,
+        'finished_sessions': finished_sessions,
+    })
+
+
 def _make_qr_data_uri(data: str) -> str:
     """Generate a QR code and return it as a base64 data URI."""
     img = qrcode.make(data, box_size=8, border=2)
@@ -124,7 +135,12 @@ def api_slots(request):
 def navigate(request, session_id):
     """Step 3 – show a visual guide / map to the reserved slot."""
     session = get_object_or_404(ParkingSession, pk=session_id)
-    return render(request, 'parking/navigate.html', {'session': session})
+    # Generate QR Code representing the ticket/session id
+    qr_data_uri = _make_qr_data_uri(str(session.id))
+    return render(request, 'parking/navigate.html', {
+        'session': session,
+        'qr_data_uri': qr_data_uri,
+    })
 
 
 # ─── Exit flow ─────────────────────────────────────────────────────

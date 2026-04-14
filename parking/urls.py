@@ -11,5 +11,6 @@ urlpatterns = [
     path('exit/', views.exit_scan, name='exit_scan'),
     path('qr/entry/', views.qr_entry, name='qr_entry'),
     path('qr/exit/', views.qr_exit, name='qr_exit'),
+    path('bookings/', views.bookings, name='bookings'),
     path('api/slots/', views.api_slots, name='api_slots'),
 ]

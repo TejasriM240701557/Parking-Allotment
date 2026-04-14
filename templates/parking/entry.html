@@ -1,31 +1,288 @@
-{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
 
-{% block title %}Entry — SmartPark{% endblock %}
-{% block meta_description %}Register your vehicle to find an available parking spot.{% endblock %}
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Entry — SmartPark</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#343d96",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface": "#f7f9fb",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary": "#4355b9",
+                        "on-primary-fixed": "#000767",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "outline-variant": "#c6c5d4",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "secondary-fixed": "#dee0ff",
+                        "inverse-primary": "#bdc2ff",
+                        "on-secondary-fixed": "#00105c",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#002108",
+                        "tertiary-container": "#003912",
+                        "surface-variant": "#e0e3e5",
+                        "surface-tint": "#4c56af",
+                        "primary-container": "#1a237e",
+                        "on-tertiary-container": "#00b048",
+                        "surface-bright": "#f7f9fb",
+                        "primary-fixed": "#e0e0ff",
+                        "inverse-surface": "#2d3133",
+                        "on-error": "#ffffff",
+                        "primary": "#000666",
+                        "tertiary-fixed": "#69ff87",
+                        "on-surface-variant": "#454652",
+                        "on-secondary-fixed-variant": "#293ca0",
+                        "background": "#f7f9fb",
+                        "on-background": "#191c1e",
+                        "on-primary-container": "#8690ee",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "on-secondary-container": "#11278e",
+                        "surface-dim": "#d8dadc",
+                        "secondary-fixed-dim": "#bac3ff",
+                        "outline": "#767683",
+                        "on-tertiary-fixed": "#002108",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "secondary-container": "#8596ff",
+                        "on-surface": "#191c1e",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
 
-{% block content %}
-<div class="page-header animate-in">
-    <h1>Vehicle Entry</h1>
-    <p>Fill in your details to find a parking spot.</p>
-</div>
+        .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
 
-<div class="form-card animate-in animate-in--d1">
-    <form method="post" id="entry-form">
-        {% csrf_token %}
-        {% for field in form %}
-        <div class="form-field">
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-            <div class="form-error">{{ field.errors.0 }}</div>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .active-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface antialiased min-h-screen pb-32">
+    <!-- TopAppBar -->
+    <header class="w-full top-0 sticky z-50 bg-slate-50 dark:bg-slate-900">
+        <div class="flex items-center px-4 h-16 w-full max-w-md md:max-w-5xl mx-auto">
+            <a href="{% url 'parking:home' %}"
+                class="p-2 transition-colors duration-200 active:scale-95 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-full inline-flex">
+                <span class="material-symbols-outlined text-blue-900 dark:text-blue-200">arrow_back</span>
+            </a>
+            <h1 class="ml-2 text-blue-900 dark:text-blue-200 font-['Manrope'] font-bold tracking-tight text-lg">Entry
+                Registration</h1>
+        </div>
+    </header>
+    <main class="max-w-md md:max-w-5xl mx-auto px-6 pt-6 md:grid md:grid-cols-2 md:gap-12 md:items-start md:pb-24">
+        <!-- Hero Section / Instructions -->
+        <div class="mb-10 md:mb-0 md:sticky md:top-24">
+            <div class="relative w-full h-48 md:h-[500px] rounded-3xl overflow-hidden mb-6 shadow-xl">
+                <img alt="Modern parking facility" class="w-full h-full object-cover"
+                    data-alt="Modern high-end concrete parking garage with sleek neon blue overhead lighting and premium glossy floor finish at dusk"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX7a6dd6uHw94j0EMpCZZealQMtlO02dPX6cZh0VIfGRYwzfepyQFI6Uk8TeEX6E4wmgXwRgCWrZyQCiSWSRXyDr7llMnUiOdGCax83PxHKzyE7MQNsU-oGPAKxtTwwXO0PB8SqulDBBd_1MvtYzeC_Ozty3osQoMZgHdh3aHdcYkWVOXDmXpDp-vG0ArHMtvd_m3YYbp9mzqVtFVGqzMMzWPC43pCargMLc_ZPRiqVV0_g5oquatvOl2moXTjTzsq2P1o2eAYt82N" />
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-primary-container/80 to-transparent flex items-end p-6">
+                    <h2 class="text-white font-headline text-3xl font-extrabold tracking-tight">Onboard your vehicle
+                    </h2>
+                </div>
+            </div>
+            <p class="text-on-surface-variant body-lg leading-relaxed px-1">
+                Enter the details below to register your vehicle for today's parking allotment. Quick, secure, and
+                touchless.
+            </p>
+        </div>
+        <!-- Registration Form -->
+        <form method="post" id="entry-form" class="space-y-8">
+            {% csrf_token %}
+            <!-- Form Group: Personal Info -->
+            <section class="bg-surface-container-low rounded-[2rem] p-6 space-y-6">
+                <div>
+                    <label
+                        class="block text-primary font-bold mb-2 ml-1 text-sm uppercase tracking-wider font-label">Driver
+                        Name</label>
+                    <div class="relative group">
+                        <input name="driver_name" value="{{ form.driver_name.value|default_if_none:'' }}"
+                            class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary-container transition-all shadow-sm"
+                            placeholder="John Doe" type="text" required />
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant">person</span>
+                    </div>
+                    {% if form.driver_name.errors %}<div class="text-error text-xs font-bold mt-1 ml-1">{{
+                        form.driver_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div>
+                    <label
+                        class="block text-primary font-bold mb-2 ml-1 text-sm uppercase tracking-wider font-label">Phone
+                        Number</label>
+                    <div class="relative group">
+                        <input name="phone" value="{{ form.phone.value|default_if_none:'' }}"
+                            class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary-container transition-all shadow-sm"
+                            placeholder="+1 (555) 000-0000" type="tel" required />
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant">call</span>
+                    </div>
+                    {% if form.phone.errors %}<div class="text-error text-xs font-bold mt-1 ml-1">{{ form.phone.errors.0
+                        }}</div>{% endif %}
+                </div>
+            </section>
+            <!-- Form Group: Vehicle Details -->
+            <section class="bg-surface-container-low rounded-[2rem] p-6 space-y-6">
+                <div>
+                    <label
+                        class="block text-primary font-bold mb-2 ml-1 text-sm uppercase tracking-wider font-label">Plate
+                        Number</label>
+                    <div class="relative group">
+                        <input name="vehicle_plate" value="{{ form.vehicle_plate.value|default_if_none:'' }}"
+                            class="w-full bg-surface-container-lowest border-none rounded-xl p-4 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary-container transition-all shadow-sm uppercase font-mono tracking-widest text-lg"
+                            placeholder="ABC-1234" type="text" required />
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant">badge</span>
+                    </div>
+                    {% if form.vehicle_plate.errors %}<div class="text-error text-xs font-bold mt-1 ml-1">{{
+                        form.vehicle_plate.errors.0 }}</div>{% endif %}
+                </div>
+                <div>
+                    <label
+                        class="block text-primary font-bold mb-2 ml-1 text-sm uppercase tracking-wider font-label">Vehicle
+                        Type</label>
+                    <div class="relative">
+                        <select name="vehicle_type"
+                            class="w-full bg-surface-container-lowest border-none rounded-xl p-4 pr-12 text-on-surface appearance-none focus:ring-2 focus:ring-primary-container transition-all shadow-sm"
+                            required>
+                            {% if form.vehicle_type.value == "mini" %}
+                            <option value="mini" selected>Mini / Hatchback</option>
+                            {% else %}
+                            <option value="mini">Mini / Hatchback</option>
+                            {% endif %}
+
+                            {% if form.vehicle_type.value == "sedan" %}
+                            <option value="sedan" selected>Sedan</option>
+                            {% else %}
+                            <option value="sedan">Sedan</option>
+                            {% endif %}
+
+                            {% if form.vehicle_type.value == "suv" %}
+                            <option value="suv" selected>SUV</option>
+                            {% else %}
+                            <option value="suv">SUV</option>
+                            {% endif %}
+
+                            {% if form.vehicle_type.value == "jeep" %}
+                            <option value="jeep" selected>Jeep</option>
+                            {% else %}
+                            <option value="jeep">Jeep</option>
+                            {% endif %}
+
+                            {% if form.vehicle_type.value == "muv" %}
+                            <option value="muv" selected>MUV / Van</option>
+                            {% else %}
+                            <option value="muv">MUV / Van</option>
+                            {% endif %}
+
+                            {% if form.vehicle_type.value == "truck" %}
+                            <option value="truck" selected>Truck / Pickup</option>
+                            {% else %}
+                            <option value="truck">Truck / Pickup</option>
+                            {% endif %}
+                        </select>
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">directions_car</span>
+                    </div>
+                    {% if form.vehicle_type.errors %}<div class="text-error text-xs font-bold mt-1 ml-1">{{
+                        form.vehicle_type.errors.0 }}</div>{% endif %}
+                </div>
+            </section>
+            <!-- Action Area -->
+            <div class="pt-4">
+                <button type="submit"
+                    class="w-full bg-primary text-on-primary py-5 px-8 rounded-xl font-headline font-bold text-lg shadow-2xl shadow-primary/20 transition-transform active:scale-95 hover:brightness-110 flex items-center justify-center gap-3">
+                    Continue to Slot Selection
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+                <p class="text-center text-outline text-sm mt-6 mb-8">
+                    Your data is encrypted and used only for parking authorization.
+                </p>
+            </div>
+            {% if form.non_field_errors %}
+            <div class="text-error text-sm font-bold text-center mb-4">
+                {{ form.non_field_errors.0 }}
+            </div>
             {% endif %}
+        </form>
+    </main>
+    <!-- BottomNavBar -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 px-4 pb-6 mt-4 pointer-events-none">
+        <div
+            class="bg-surface-container-lowest/90 backdrop-blur-2xl border border-outline-variant/30 flex justify-around items-center py-3 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] pointer-events-auto">
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60"
+                href="{% url 'parking:home' %}">
+                <span class="material-symbols-outlined text-2xl">home</span>
+                <span class="text-[10px] font-bold mt-1">Home</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-primary" href="{% url 'parking:bookings' %}">
+                <span class="material-symbols-outlined text-2xl active-icon">confirmation_number</span>
+                <span class="text-[10px] font-bold mt-1">Booking</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60" href="#">
+                <span class="material-symbols-outlined text-2xl">history</span>
+                <span class="text-[10px] font-bold mt-1">History</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60" href="#">
+                <span class="material-symbols-outlined text-2xl">person</span>
+                <span class="text-[10px] font-bold mt-1">Profile</span>
+            </a>
         </div>
-        {% endfor %}
-        <div style="margin-top: var(--space-xl);">
-            <button type="submit" class="btn btn-primary btn--full" id="btn-find-slot">
-                Find a Spot
-            </button>
-        </div>
-    </form>
-</div>
-{% endblock %}
+    </nav>
+</body>
+
+</html>

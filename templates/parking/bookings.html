@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>My Bookings - Urban Flow</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#191c1e",
+                        "inverse-primary": "#bdc2ff",
+                        "inverse-surface": "#2d3133",
+                        "on-tertiary-container": "#00b048",
+                        "secondary-fixed": "#dee0ff",
+                        "surface-dim": "#d8dadc",
+                        "primary": "#000666",
+                        "on-surface": "#191c1e",
+                        "outline-variant": "#c6c5d4",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-container": "#11278e",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e0e0ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#002108",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "primary-container": "#1a237e",
+                        "on-tertiary-fixed": "#002108",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary-fixed-dim": "#bac3ff",
+                        "secondary-container": "#8596ff",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#454652",
+                        "on-secondary-fixed": "#00105c",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "outline": "#767683",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#003912",
+                        "surface-tint": "#4c56af",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary": "#4355b9",
+                        "on-secondary-fixed-variant": "#293ca0",
+                        "on-primary-fixed-variant": "#343d96",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#8690ee",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed": "#000767",
+                        "tertiary-fixed": "#69ff87",
+                        "background": "#f7f9fb",
+                        "surface": "#f7f9fb",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-low": "#f2f4f6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .active-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen pb-40">
+    <!-- TopAppBar -->
+    <header
+        class="bg-slate-50 dark:bg-slate-900 flex justify-between items-center w-full px-6 h-16 top-0 sticky z-40 max-w-md md:max-w-5xl mx-auto">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'parking:home' %}"
+                class="text-indigo-900 dark:text-indigo-100 flex active:scale-95 transition-transform"><span
+                    class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span></a>
+            <h1 class="text-indigo-950 dark:text-white font-extrabold font-headline tracking-tight text-lg">My Bookings
+            </h1>
+        </div>
+    </header>
+
+    <main class="max-w-md md:max-w-3xl mx-auto px-6 pt-6">
+        <!-- Tabs -->
+        <div class="flex bg-surface-container-low p-1 rounded-2xl mb-6">
+            <button onclick="switchTab('active')" id="tab-active"
+                class="flex-1 py-2 font-semibold text-sm rounded-xl font-headline transition-colors bg-white shadow text-primary">Active</button>
+            <button onclick="switchTab('finished')" id="tab-finished"
+                class="flex-1 py-2 font-semibold text-sm rounded-xl font-headline transition-colors text-on-surface-variant hover:bg-surface-container-lowest/50">Finished</button>
+        </div>
+
+        <div id="content-active" class="space-y-4 md:grid md:grid-cols-2 md:space-y-0 md:gap-4">
+            {% for ticket in active_sessions %}
+            <a href="{% url 'parking:navigate' ticket.id %}"
+                class="block bg-surface-container-lowest p-5 rounded-3xl shadow-[0_8px_30px_rgba(25,28,30,0.04)] border border-outline-variant/20 active:scale-[0.98] transition-transform">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <span
+                            class="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Active</span>
+                        <h3 class="font-headline font-bold text-lg text-primary mt-1">
+                            {{ ticket.slot.slot_number|default:"Pending" }}</h3>
+                    </div>
+                    <span class="text-primary font-bold">{{ ticket.vehicle_plate }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-on-surface-variant flex items-center gap-1"><span
+                            class="material-symbols-outlined text-[14px]">schedule</span>
+                        {{ ticket.entry_time|date:"d M, H:i" }}</span>
+                    <span class="text-primary font-semibold flex items-center gap-1">Ticket <span
+                            class="material-symbols-outlined text-[14px]">arrow_forward</span></span>
+                </div>
+            </a>
+            {% empty %}
+            <div class="col-span-full text-center py-10 opacity-60">
+                <span class="material-symbols-outlined text-4xl mb-2">assignment</span>
+                <p>No active bookings.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="content-finished" class="space-y-4 md:grid md:grid-cols-2 md:space-y-0 md:gap-4 hidden">
+            {% for ticket in finished_sessions %}
+            <div class="block bg-surface-container-low p-5 rounded-3xl border border-outline-variant/30">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <span
+                            class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Finished</span>
+                        <h3 class="font-headline font-bold text-lg text-on-surface mt-1">
+                            {{ ticket.slot.slot_number|default:"Walk-in" }}</h3>
+                    </div>
+                    <span class="text-on-surface-variant font-bold">{{ ticket.vehicle_plate }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-on-surface-variant flex gap-4">
+                        <span class="flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[14px]">schedule</span>
+                            {{ ticket.exit_time|date:"d M, H:i" }}</span>
+                    </span>
+                    <span class="font-bold text-primary">${{ ticket.amount }}</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-10 opacity-60">
+                <span class="material-symbols-outlined text-4xl mb-2">history</span>
+                <p>No past bookings.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- BottomNavBar -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 px-4 pb-6 mt-4 pointer-events-none">
+        <div
+            class="bg-surface-container-lowest/90 backdrop-blur-2xl border border-outline-variant/30 flex justify-around items-center py-3 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] pointer-events-auto">
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60"
+                href="{% url 'parking:home' %}">
+                <span class="material-symbols-outlined text-2xl">home</span>
+                <span class="text-[10px] font-bold mt-1">Home</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-primary" href="{% url 'parking:bookings' %}">
+                <span class="material-symbols-outlined text-2xl active-icon">confirmation_number</span>
+                <span class="text-[10px] font-bold mt-1">Booking</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60" href="#">
+                <span class="material-symbols-outlined text-2xl">history</span>
+                <span class="text-[10px] font-bold mt-1">History</span>
+            </a>
+            <a class="flex flex-col items-center justify-center text-on-surface-variant/60" href="#">
+                <span class="material-symbols-outlined text-2xl">person</span>
+                <span class="text-[10px] font-bold mt-1">Profile</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        function switchTab(tab) {
+            const btnActive = "flex-1 py-2 font-semibold text-sm rounded-xl font-headline transition-colors bg-white shadow text-primary";
+            const btnInactive = "flex-1 py-2 font-semibold text-sm rounded-xl font-headline transition-colors text-on-surface-variant hover:bg-surface-container-lowest/50";
+
+            if (tab === 'active') {
+                document.getElementById('content-active').classList.remove('hidden');
+                document.getElementById('content-active').classList.add('md:grid');
+                document.getElementById('content-finished').classList.add('hidden');
+                document.getElementById('content-finished').classList.remove('md:grid');
+                document.getElementById('tab-active').className = btnActive;
+                document.getElementById('tab-finished').className = btnInactive;
+            } else {
+                document.getElementById('content-active').classList.add('hidden');
+                document.getElementById('content-active').classList.remove('md:grid');
+                document.getElementById('content-finished').classList.remove('hidden');
+                document.getElementById('content-finished').classList.add('md:grid');
+                document.getElementById('tab-active').className = btnInactive;
+                document.getElementById('tab-finished').className = btnActive;
+            }
+        }
+    </script>
+</body>
+
+</html>
