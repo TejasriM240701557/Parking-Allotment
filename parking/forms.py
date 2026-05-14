@@ -28,6 +28,14 @@ class EntryForm(forms.ModelForm):
             'vehicle_type': 'Vehicle Type',
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        plate = cleaned_data.get('vehicle_plate')
+        if plate:
+            if ParkingSession.objects.filter(vehicle_plate__iexact=plate, is_active=True).exists():
+                raise forms.ValidationError("This vehicle is already parked. Please exit before entering again.")
+        return cleaned_data
+
 
 class ExitForm(forms.Form):
     """Form shown at the exit gate."""

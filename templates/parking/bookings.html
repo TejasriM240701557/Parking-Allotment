@@ -169,7 +169,7 @@
                                 class="material-symbols-outlined text-[14px]">schedule</span>
                             {{ ticket.exit_time|date:"d M, H:i" }}</span>
                     </span>
-                    <span class="font-bold text-primary">${{ ticket.amount }}</span>
+                    <span class="font-bold text-primary">₹{{ ticket.amount }}</span>
                 </div>
             </div>
             {% empty %}

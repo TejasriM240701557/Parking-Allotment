@@ -11,10 +11,28 @@ from django.conf import settings
 
 from .models import ParkingSlot, ParkingSession, VEHICLE_SIZE_MAP
 from .forms import EntryForm, ExitForm
+from datetime import timedelta
+
+def _cleanup_stale_sessions():
+    now = timezone.now()
+    stale_threshold = now - timedelta(hours=24)
+    stale_sessions = ParkingSession.objects.filter(is_active=True, entry_time__lte=stale_threshold)
+    if not stale_sessions.exists():
+        return
+    rate = getattr(settings, 'PARKING_RATE_PER_HOUR', 40)
+    for session in stale_sessions:
+        session.exit_time = session.entry_time + timedelta(hours=24)
+        session.amount = 24 * rate
+        session.is_active = False
+        session.save()
+        if session.slot:
+            session.slot.is_available = True
+            session.slot.save()
 
 
 def bookings(request):
     """List all user tickets (active and finished)."""
+    _cleanup_stale_sessions()
     # For a real app, this would filter by request.user
     active_sessions = ParkingSession.objects.filter(is_active=True).order_by('-entry_time')
     finished_sessions = ParkingSession.objects.filter(is_active=False).order_by('-exit_time')
@@ -36,6 +54,7 @@ def _make_qr_data_uri(data: str) -> str:
 # ─── Landing ───────────────────────────────────────────────────────
 def home(request):
     """Landing page with Entry / Exit buttons."""
+    _cleanup_stale_sessions()
     active_sessions = ParkingSession.objects.filter(is_active=True).count()
     total_slots = ParkingSlot.objects.count()
     free_slots = ParkingSlot.objects.filter(is_available=True).count()
@@ -49,6 +68,7 @@ def home(request):
 # ─── Entry flow ────────────────────────────────────────────────────
 def entry(request):
     """Step 1 – driver fills in details."""
+    _cleanup_stale_sessions()
     if request.method == 'POST':
         form = EntryForm(request.POST)
         if form.is_valid():
@@ -116,6 +136,7 @@ def select_slot(request):
 # ─── Live slot availability API ────────────────────────────────────
 def api_slots(request):
     """JSON endpoint returning current slot availability and overall stats for live updates."""
+    _cleanup_stale_sessions()
     slots = ParkingSlot.objects.all().values('id', 'slot_number', 'size', 'floor', 'is_available')
     active_sessions = ParkingSession.objects.filter(is_active=True).count()
     total_slots = ParkingSlot.objects.count()
@@ -146,6 +167,7 @@ def navigate(request, session_id):
 # ─── Exit flow ─────────────────────────────────────────────────────
 def exit_scan(request):
     """Exit gate – driver enters car details to check out and free slot instantly."""
+    _cleanup_stale_sessions()
     error_message = None
 
     if request.method == 'POST':
